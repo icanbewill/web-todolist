@@ -15,6 +15,9 @@ class CreateTasksTable extends Migration
     {
         Schema::create('tasks', function (Blueprint $table) {
             $table->id();
+            $table->string("libelle");
+            $table->enum("state", ["a faire", "en cours", "fait", "en retard"]); // le statut en retard n'est pas tellement important, on peut le gérer comme traitement DANS LE MODELE
+            $table->dateTime('deadline')->nullable();
             $table->timestamps();
         });
     }
