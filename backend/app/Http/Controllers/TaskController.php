@@ -12,19 +12,15 @@ class TaskController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
+        $limit = $request->has('limit') ? $request->limit : 1;
+        $tasks = Task::orderByDesc('created_at')->get();
+        $tasks = [
+            'tasks' => $tasks,
+            'response' => 200
+        ];
+        return response()->json($tasks);
     }
 
     /**
@@ -35,29 +31,24 @@ class TaskController extends Controller
      */
     public function store(Request $request)
     {
-        //
-    }
+        $request->validate([
+            'libelle' => 'required|string|min:1',
+        ]);
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Task  $task
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Task $task)
-    {
-        //
-    }
+        // On cree l'nstance de la tache puis on l'enregistre vite fait
+        $task = new Task();
+        $task->libelle = $request->libelle;
+        $task->state = $request->state;
+        $task->deadline = $request->deadline;
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Task  $task
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Task $task)
-    {
-        //
+        $task->save();
+        $task = [
+            'task' => $task,
+            'success' => true
+        ];
+
+        // puis on retoune le resultat pour la vue
+        return response()->json($task);
     }
 
     /**
@@ -67,9 +58,30 @@ class TaskController extends Controller
      * @param  \App\Models\Task  $task
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Task $task)
+    public function update(Request $request, $task)
     {
-        //
+        // Validation
+        $request->validate([
+            'libelle' => 'required|string|min:1',
+            'task' => 'exists:tasks,id'
+        ]);
+
+        // Récupération
+        $task = Task::find($task);
+
+        // Mise à jour
+        $task->update([
+            "libelle" => $request->libelle,
+            "state" => $request->state,
+            "deadline" => $request->deadline
+        ]);
+
+        $task = [
+            'task' => $task,
+            'success' => true
+        ];
+        // puis on sors
+        return response()->json($task);
     }
 
     /**
@@ -78,8 +90,10 @@ class TaskController extends Controller
      * @param  \App\Models\Task  $task
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Task $task)
+    public function destroy($task)
     {
-        //
+        $task = Task::find($task);
+        $task->forceDelete();
+        return response()->json(['success' => true]);
     }
 }
