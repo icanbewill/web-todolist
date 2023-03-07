@@ -38,7 +38,7 @@ class TaskController extends Controller
         // On cree l'nstance de la tache puis on l'enregistre vite fait
         $task = new Task();
         $task->libelle = $request->libelle;
-        $task->state = $request->state;
+        $task->state = "a faire";
         $task->deadline = $request->deadline;
 
         $task->save();
@@ -67,7 +67,7 @@ class TaskController extends Controller
         ]);
 
         // Récupération
-        $task = Task::find($task);
+        $task = Task::firstWhere(["id" => $request->id]);
 
         // Mise à jour
         $task->update([
